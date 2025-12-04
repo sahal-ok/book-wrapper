@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Book Wrapper — Phone Image Builder</title>
+
+  <!-- html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    :root{
+      --phone-w: 360px;
+      --phone-h: 640px;
+      --accent1: #0ea5e9;
+      --accent2: #06b6d4;
+      --card-bg: rgba(255,255,255,0.95);
+      --gap: 10px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#0f172a 0%, #071033 100%);
+      color:#111827;
+      padding:24px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      gap:20px;
+      min-height:100vh;
+    }
+
+    .controls{
+      width:420px;
+      max-width:90vw;
+      background:var(--card-bg);
+      border-radius:12px;
+      padding:16px;
+      box-shadow:0 8px 30px rgba(2,6,23,0.5);
+    }
+
+    .controls h1{margin:0 0 12px;font-size:18px}
+    .row{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:center;
+      margin-bottom:8px;
+    }
+    .row input[type="text"]{
+      padding:8px 10px;
+      border-radius:8px;
+      border:1px solid #e6e9ee;
+      font-size:13px;
+    }
+    .row input[type="file"]{font-size:13px}
+    .btn{
+      display:inline-block;
+      padding:10px 14px;
+      border-radius:8px;
+      background:linear-gradient(90deg,var(--accent1),var(--accent2));
+      color:white;
+      border:none;
+      cursor:pointer;
+      font-weight:600;
+      font-size:14px;
+    }
+    .btn.secondary{
+      background:#e6eefc;
+      color:#05386b;
+      font-weight:700;
+    }
+    .small{
+      font-size:12px;color:#475569;margin-top:8px;
+    }
+
+    /* PHONE MOCKUP */
+    .phone-wrap{
+      width:var(--phone-w);
+      min-width:var(--phone-w);
+      height:var(--phone-h);
+      border-radius:36px;
+      padding:18px;
+      background:linear-gradient(180deg,#0b1220 0%, #0b1a2f 100%);
+      box-shadow: 0 20px 60px rgba(2,6,23,0.6);
+      position:relative;
+      overflow:hidden;
+      color:white;
+    }
+
+    .phone-inner{
+      width:100%;
+      height:100%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.2));
+      border-radius:20px;
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .phone-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:12px;
+    }
+    .phone-header .title{
+      font-weight:800; letter-spacing:0.2px;
+      font-size:16px;
+    }
+    .phone-list{
+      flex:1;
+      overflow:auto;
+      padding-right:6px;
+    }
+
+    /* each book row inside phone */
+    .book-row{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:10px;
+      margin-bottom:10px;
+      background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(0,0,0,0.06));
+      border-radius:12px;
+      min-height:80px;
+    }
+
+    .book-thumb{
+      width:80px;
+      height:80px;
+      min-width:80px;
+      object-fit:contain;
+      border-radius:10px;
+      overflow:hidden;
+      background:#e2e8f0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#475569;
+      font-weight:700;
+      font-size:14px;
+    }
+  
+    .book-text{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      overflow:hidden;
+      color:#fff;
+    }
+    .book-text span.title{
+      font-weight:700;
+      font-size:14px;
+      line-height:1.2;
+      white-space:normal;
+    }
+    .book-text span.author{
+      font-weight:500;
+      font-size:12px;
+      color: rgba(255,255,255,0.85);
+      white-space:normal;
+      margin-top:2px;
+    }
+
+    /* small scroll styling */
+    .phone-list::-webkit-scrollbar{width:8px}
+    .phone-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:6px}
+    .phone-list::-webkit-scrollbar-track{background:transparent}
+
+    /* responsiveness */
+    @media (max-width:860px){
+      body{flex-direction:column;align-items:center}
+      .controls{order:2}
+      .phone-wrap{order:1}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="controls">
+    <h1>my 2025 books</h1>
+
+    <div id="inputs"></div>
+
+    <div style="display:flex; gap:8px; margin-top:10px;">
+      <button id="addBtn" class="btn">+ Add Book</button>
+      <button id="downloadBtn" class="btn">Download Phone Image</button>
+      <button id="resetBtn" class="btn secondary">Reset</button>
+    </div>
+
+    <div class="small">Notes: Each book row shows <strong>Title</strong> and <strong>Author</strong> in separate lines and an 80×80 thumbnail. Upload images to preview inside the phone.</div>
+  </div>
+
+  <div id="phone" class="phone-wrap" aria-label="phone-mockup">
+    <div class="phone-inner" id="phoneInner">
+      <div class="phone-header">
+        <div class="title">My Book Collection</div>
+        <div style="opacity:0.85; font-weight:700; font-size:12px">• • •</div>
+      </div>
+
+      <div id="phoneList" class="phone-list"></div>
+    </div>
+  </div>
+
+  <script>
+    const state = { books: [ { title: 'The Unknown Path', author: 'A. Author', image: null } ] };
+
+    const inputsEl = document.getElementById('inputs');
+    const phoneListEl = document.getElementById('phoneList');
+    const addBtn = document.getElementById('addBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    function renderControls(){
+      inputsEl.innerHTML = '';
+      state.books.forEach((b, idx) => {
+        const row = document.createElement('div');
+        row.className = 'row';
+
+        const title = document.createElement('input');
+        title.type='text';
+        title.placeholder='Title';
+        title.value=b.title||'';
+        title.oninput = e => { state.books[idx].title = e.target.value; renderPhone(); };
+
+        const author = document.createElement('input');
+        author.type='text';
+        author.placeholder='Author';
+        author.value=b.author||'';
+        author.oninput = e => { state.books[idx].author = e.target.value; renderPhone(); };
+
+        const file = document.createElement('input');
+        file.type='file';
+        file.accept='image/*';
+        file.onchange = e => {
+          const f = e.target.files && e.target.files[0];
+          if(!f) return;
+          const reader = new FileReader();
+          reader.onload = ev => { state.books[idx].image = ev.target.result; renderPhone(); };
+          reader.readAsDataURL(f);
+        };
+
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent='Remove';
+        removeBtn.className='btn secondary';
+        removeBtn.onclick = () => { state.books.splice(idx,1); renderControls(); renderPhone(); };
+
+        row.appendChild(title);
+        row.appendChild(author);
+        row.appendChild(file);
+        row.appendChild(removeBtn);
+
+        inputsEl.appendChild(row);
+      });
+    }
+
+    function renderPhone(){
+      phoneListEl.innerHTML='';
+      state.books.forEach(b => {
+        const r = document.createElement('div');
+        r.className='book-row';
+
+        const thumb = document.createElement('div');
+        thumb.className='book-thumb';
+        if(b.image){
+          const img=document.createElement('img');
+          img.src=b.image;
+          img.style.width='100%';
+          img.style.height='100%';
+          img.style.objectFit='cover';
+          thumb.appendChild(img);
+        } else { thumb.textContent='IMG'; }
+
+        const txt=document.createElement('div');
+        txt.className='book-text';
+
+        const titleSpan=document.createElement('span');
+        titleSpan.className='title';
+        titleSpan.textContent=b.title||'Book';
+
+        const authorSpan=document.createElement('span');
+        authorSpan.className='author';
+        authorSpan.textContent=b.author||'Author';
+
+        txt.appendChild(titleSpan);
+        txt.appendChild(authorSpan);
+
+        r.appendChild(thumb);
+        r.appendChild(txt);
+
+        phoneListEl.appendChild(r);
+      });
+
+      if(state.books.length===0){
+        const placeholder=document.createElement('div');
+        placeholder.style.color='rgba(255,255,255,0.6)';
+        placeholder.style.textAlign='center';
+        placeholder.style.paddingTop='40px';
+        placeholder.textContent='No books — add one from the controls';
+        phoneListEl.appendChild(placeholder);
+      }
+    }
+
+    renderControls();
+    renderPhone();
+
+    addBtn.onclick = () => { state.books.push({title:'', author:'', image:null}); renderControls(); renderPhone(); };
+    resetBtn.onclick = () => { state.books=[{title:'', author:'', image:null}]; renderControls(); renderPhone(); };
+
+    downloadBtn.onclick = async () => {
+      const phoneEl=document.getElementById('phone');
+      const canvas=await html2canvas(phoneEl,{scale:2,useCORS:true});
+      const dataUrl=canvas.toDataURL('image/png');
+      const a=document.createElement('a');
+      a.href=dataUrl;
+      a.download='books-phone.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    };
+
+    document.addEventListener('keydown', e => { if(e.ctrlKey && e.key==='Enter') addBtn.click(); });
+  </script>
+</body>
+</html>
