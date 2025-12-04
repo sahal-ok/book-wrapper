@@ -19,16 +19,25 @@
     }
 
     *{box-sizing:border-box}
+
     body{
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
       background: linear-gradient(180deg,#0f172a 0%, #071033 100%);
       color:#111827;
       padding:24px;
       display:flex;
+      flex-direction: column; /* stack content vertically */
+      min-height: 100vh;      /* full viewport height */
+      margin:0;
+    }
+
+    #mainContent{
+      flex:1; /* fill remaining space */
+      display:flex;
       justify-content:center;
       align-items:flex-start;
       gap:20px;
-      min-height:100vh;
+      flex-wrap: wrap;
     }
 
     .controls{
@@ -171,38 +180,62 @@
 
     /* responsiveness */
     @media (max-width:860px){
-      body{flex-direction:column;align-items:center}
-      .controls{order:2}
-      .phone-wrap{order:1}
+      #mainContent{flex-direction:column;align-items:center}
     }
+
+    /* Footer styling */
+    footer{
+      background-color: #1a1a1a;
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+      font-family: Arial, sans-serif;
+    }
+    footer a:hover {transform: scale(1.2);}
   </style>
 </head>
 <body>
 
-  <div class="controls">
-    <h1>my 2025 books</h1>
+  <div id="mainContent">
+    <div class="controls">
+      <h1>my 2025 books</h1>
 
-    <div id="inputs"></div>
+      <div id="inputs"></div>
 
-    <div style="display:flex; gap:8px; margin-top:10px;">
-      <button id="addBtn" class="btn">+ Add Book</button>
-      <button id="downloadBtn" class="btn">Download Phone Image</button>
-      <button id="resetBtn" class="btn secondary">Reset</button>
-    </div>
-
-    <div class="small">Notes: Each book row shows <strong>Title</strong> and <strong>Author</strong> in separate lines and an 80×80 thumbnail. Upload images to preview inside the phone.</div>
-  </div>
-
-  <div id="phone" class="phone-wrap" aria-label="phone-mockup">
-    <div class="phone-inner" id="phoneInner">
-      <div class="phone-header">
-        <div class="title">My Book Collection</div>
-        <div style="opacity:0.85; font-weight:700; font-size:12px">• • •</div>
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button id="addBtn" class="btn">+ Add Book</button>
+        <button id="downloadBtn" class="btn">Download Phone Image</button>
+        <button id="resetBtn" class="btn secondary">Reset</button>
       </div>
 
-      <div id="phoneList" class="phone-list"></div>
+      <div class="small">Notes: Each book row shows <strong>Title</strong> and <strong>Author</strong> in separate lines and an 80×80 thumbnail. Upload images to preview inside the phone.</div>
+    </div>
+
+    <div id="phone" class="phone-wrap" aria-label="phone-mockup">
+      <div class="phone-inner" id="phoneInner">
+        <div class="phone-header">
+          <div class="title">My Book Collection</div>
+          <div style="opacity:0.85; font-weight:700; font-size:12px">• • •</div>
+        </div>
+
+        <div id="phoneList" class="phone-list"></div>
+      </div>
     </div>
   </div>
+
+  <!-- Footer -->
+  <footer>
+    <div style="margin-bottom: 15px; font-size: 18px;">Connect with me</div>
+    <div>
+      <a href="https://www.linkedin.com/in/yourprofile" target="_blank" style="margin: 0 10px; display:inline-block; transition: transform 0.2s;">
+        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg" alt="LinkedIn" width="35" height="35" style="vertical-align:middle; filter: invert(1);">
+      </a>
+      <a href="https://www.instagram.com/yourprofile" target="_blank" style="margin: 0 10px; display:inline-block; transition: transform 0.2s;">
+        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" width="35" height="35" style="vertical-align:middle; filter: invert(1);">
+      </a>
+    </div>
+    <p style="margin-top: 20px; font-size: 14px; color: #bbb;">&copy; 2025 Your Name. All rights reserved.</p>
+  </footer>
 
   <script>
     const state = { books: [ { title: 'The Unknown Path', author: 'A. Author', image: null } ] };
